@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ZKsync — Hello World</title>
+  <link rel="icon" href="https://www.zksync.io/brand/zksync-logo/zksync-logomark-light-transparent.svg" type="image/svg+xml" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --zk-blue: #1755F4;
+      --zk-navy: #11142D;
+      --zk-purple: #8C8DFC;
+      --zk-green: #00D395;
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--zk-navy);
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .orb {
+      position: fixed; border-radius: 50%; filter: blur(100px); z-index: 0;
+      animation: drift 20s ease-in-out infinite alternate;
+    }
+    .orb-1 {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(23,85,244,0.25), transparent 70%);
+      top: -10%; left: -5%;
+    }
+    .orb-2 {
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(140,141,252,0.2), transparent 70%);
+      bottom: -10%; right: -5%;
+      animation-duration: 22s; animation-delay: -5s;
+    }
+    @keyframes drift {
+      0%   { transform: translate(0, 0) scale(1); }
+      50%  { transform: translate(30px, -20px) scale(1.05); }
+      100% { transform: translate(-20px, 30px) scale(0.95); }
+    }
+
+    .dot-overlay {
+      position: fixed; inset: 0; z-index: 0;
+      background-image: radial-gradient(circle, rgba(140,141,252,0.08) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    .content {
+      position: relative; z-index: 1;
+      text-align: center; padding: 24px;
+    }
+
+    h1 {
+      font-size: clamp(64px, 12vw, 140px);
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: -0.035em;
+      background: linear-gradient(135deg, var(--zk-blue) 0%, var(--zk-purple) 50%, var(--zk-green) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: fadeUp 0.8s ease-out both;
+    }
+
+    .joke {
+      margin-top: 36px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(13px, 1.6vw, 16px);
+      color: rgba(244,246,255,0.35);
+      line-height: 1.7;
+      max-width: 480px;
+      animation: fadeUp 0.8s ease-out 0.4s both;
+    }
+    .joke .punchline {
+      color: var(--zk-purple);
+      margin-top: 6px;
+      display: block;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="dot-overlay"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+
+  <div class="content">
+    <h1>Hello World</h1>
+    <p class="joke">
+      Non-dev discovers vibe coding. Deploys to prod on day one.
+      <span class="punchline">Watch me ship bugs I can't even read. Live. In production. With confidence.</span>
+    </p>
+  </div>
+</body>
+</html>
