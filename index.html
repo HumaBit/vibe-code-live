@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hello World</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    @keyframes glitch {
+      0%, 100% { clip-path: inset(0 0 0 0); transform: translate(0); }
+      5%  { clip-path: inset(20% 0 60% 0); transform: translate(-4px, 2px); }
+      10% { clip-path: inset(60% 0 10% 0); transform: translate(4px, -1px); }
+      15% { clip-path: inset(0 0 0 0); transform: translate(0); }
+    }
+    @keyframes glitch2 {
+      0%, 100% { clip-path: inset(0 0 0 0); transform: translate(0); }
+      5%  { clip-path: inset(50% 0 20% 0); transform: translate(3px, -2px); }
+      10% { clip-path: inset(10% 0 70% 0); transform: translate(-3px, 1px); }
+      15% { clip-path: inset(0 0 0 0); transform: translate(0); }
+    }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideLeft { from { opacity: 0; transform: translateX(60px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes slideRight { from { opacity: 0; transform: translateX(-60px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes scanline { 0% { top: -10%; } 100% { top: 110%; } }
+    @keyframes flicker { 0%, 97%, 100% { opacity: 1; } 98% { opacity: 0.7; } 99% { opacity: 0.9; } }
+    @keyframes progressStuck { 0% { width: 0; } 60% { width: 73%; } 100% { width: 73%; } }
+    @keyframes float { 0%, 100% { transform: translateY(0) rotate(var(--r)); } 50% { transform: translateY(-12px) rotate(var(--r)); } }
+    @keyframes cursorBlink { 0%, 100% { border-color: #FF3E3E; } 50% { border-color: transparent; } }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #08080A;
+      color: #E8E4DF;
+      font-family: 'IBM Plex Mono', monospace;
+      min-height: 100vh;
+      overflow-x: hidden;
+      cursor: crosshair;
+      animation: flicker 4s infinite;
+    }
+
+    /* Grain overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      background-size: 200px;
+    }
+
+    /* Scanline */
+    body::after {
+      content: '';
+      position: fixed;
+      left: 0; right: 0;
+      height: 2px;
+      background: rgba(255,62,62,0.08);
+      z-index: 998;
+      pointer-events: none;
+      animation: scanline 3s linear infinite;
+    }
+
+    /* Layout */
+    .page {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      position: relative;
+    }
+
+    /* Scattered floating error badges */
+    .err-badge {
+      position: fixed;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 2px;
+      z-index: 2;
+      pointer-events: none;
+      --r: 0deg;
+      animation: float 6s ease-in-out infinite, fadeIn 1s ease-out both;
+    }
+    .err-1 { top: 12%; left: 5%; background: #FF3E3E; color: #08080A; --r: -3deg; animation-delay: 0.3s; }
+    .err-2 { top: 28%; right: 8%; background: transparent; border: 1px solid #FF3E3E33; color: #FF3E3E88; --r: 2deg; animation-delay: 0.8s; }
+    .err-3 { bottom: 22%; left: 10%; background: #FFB80033; color: #FFB800; border: 1px solid #FFB80044; --r: -1deg; animation-delay: 1.4s; }
+    .err-4 { top: 55%; right: 4%; background: transparent; border: 1px solid #E8E4DF15; color: #E8E4DF40; --r: 4deg; animation-delay: 2s; font-size: 9px; }
+    .err-5 { bottom: 35%; right: 15%; background: #FF3E3E15; color: #FF3E3E66; --r: -2deg; animation-delay: 1s; }
+
+    /* Top bar */
+    .topbar {
+      padding: 24px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #E8E4DF0A;
+      animation: fadeIn 0.6s ease-out both;
+    }
+    .topbar-left {
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #E8E4DF30;
+    }
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 11px;
+      color: #FF3E3E;
+      letter-spacing: 0.08em;
+    }
+    .live-dot {
+      width: 6px; height: 6px;
+      background: #FF3E3E;
+      border-radius: 50%;
+      box-shadow: 0 0 12px #FF3E3E88;
+      animation: blink 1.5s ease-in-out infinite;
+    }
+
+    /* Hero */
+    .hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px;
+      position: relative;
+    }
+
+    /* Main title */
+    .title-wrap {
+      position: relative;
+      margin-bottom: 20px;
+    }
+    .title {
+      font-family: 'Instrument Serif', serif;
+      font-size: clamp(72px, 15vw, 200px);
+      font-weight: 400;
+      font-style: italic;
+      line-height: 0.85;
+      letter-spacing: -0.04em;
+      color: #E8E4DF;
+      text-align: center;
+      animation: slideUp 1s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+      position: relative;
+    }
+    /* Glitch layers */
+    .title::before,
+    .title::after {
+      content: 'Hello World';
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+    }
+    .title::before {
+      color: #FF3E3E;
+      animation: glitch 3s infinite;
+      animation-delay: 0.05s;
+    }
+    .title::after {
+      color: #3E9FFF;
+      animation: glitch2 3s infinite;
+    }
+
+    /* Subtitle line */
+    .sub {
+      font-size: clamp(12px, 1.4vw, 15px);
+      color: #E8E4DF35;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      text-align: center;
+      margin-bottom: 56px;
+      animation: slideUp 1s cubic-bezier(0.16, 1, 0.3, 1) 0.5s both;
+    }
+    .sub span {
+      color: #FF3E3E88;
+    }
+
+    /* Terminal card */
+    .terminal {
+      width: min(580px, 90vw);
+      background: #0D0D10;
+      border: 1px solid #E8E4DF0D;
+      border-radius: 8px;
+      overflow: hidden;
+      animation: slideUp 1s cubic-bezier(0.16, 1, 0.3, 1) 0.7s both;
+      position: relative;
+    }
+    .terminal::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 8px;
+      box-shadow: 0 40px 120px #FF3E3E08, 0 0 1px #E8E4DF08 inset;
+      pointer-events: none;
+    }
+    .term-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 18px;
+      background: #0A0A0D;
+      border-bottom: 1px solid #E8E4DF08;
+    }
+    .term-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .term-dot:nth-child(1) { background: #FF5F56; }
+    .term-dot:nth-child(2) { background: #FFB800; }
+    .term-dot:nth-child(3) { background: #27C93F; }
+    .term-title {
+      flex: 1;
+      text-align: center;
+      font-size: 11px;
+      color: #E8E4DF25;
+      letter-spacing: 0.05em;
+      margin-right: 34px;
+    }
+    .term-body {
+      padding: 24px;
+      font-size: 13px;
+      line-height: 2;
+    }
+    .term-line {
+      display: block;
+      opacity: 0;
+      animation: slideRight 0.5s ease-out forwards;
+    }
+    .term-line:nth-child(1) { animation-delay: 1.2s; }
+    .term-line:nth-child(2) { animation-delay: 1.6s; }
+    .term-line:nth-child(3) { animation-delay: 2.0s; }
+    .term-line:nth-child(4) { animation-delay: 2.4s; }
+    .term-line:nth-child(5) { animation-delay: 2.8s; }
+    .term-line:nth-child(6) { animation-delay: 3.2s; }
+    .term-line:nth-child(7) { animation-delay: 3.6s; }
+    .prompt { color: #27C93F; }
+    .cmd { color: #E8E4DF; }
+    .warn { color: #FFB800; }
+    .err { color: #FF3E3E; }
+    .dim { color: #E8E4DF25; }
+    .ok { color: #27C93F; }
+    .cursor-block {
+      display: inline-block;
+      width: 8px;
+      height: 15px;
+      background: #FF3E3E;
+      vertical-align: middle;
+      margin-left: 4px;
+      animation: blink 1s step-end infinite;
+    }
+
+    /* Progress bar (stuck at 73%) */
+    .progress-wrap {
+      margin-top: 16px;
+      padding: 0 24px 24px;
+      opacity: 0;
+      animation: fadeIn 0.5s ease-out 4s forwards;
+    }
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: #E8E4DF30;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .progress-bar {
+      height: 3px;
+      background: #E8E4DF08;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #FF3E3E, #FFB800);
+      border-radius: 2px;
+      animation: progressStuck 2s ease-out 4.2s both;
+    }
+
+    /* Joke */
+    .joke-area {
+      margin-top: 48px;
+      text-align: center;
+      animation: slideUp 1s cubic-bezier(0.16, 1, 0.3, 1) 0.9s both;
+    }
+    .joke-text {
+      font-size: clamp(14px, 1.8vw, 18px);
+      font-weight: 300;
+      color: #E8E4DF50;
+      line-height: 1.7;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    .joke-text em {
+      font-family: 'Instrument Serif', serif;
+      font-style: italic;
+      color: #E8E4DF;
+      font-size: 1.15em;
+    }
+
+    /* Footer */
+    .footer {
+      padding: 24px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid #E8E4DF06;
+      font-size: 10px;
+      color: #E8E4DF18;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      animation: fadeIn 1s ease-out 1.2s both;
+    }
+    .footer a {
+      color: #E8E4DF30;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    .footer a:hover { color: #FF3E3E; }
+
+    /* ── Responsive ── */
+    @media (max-width: 640px) {
+      .topbar, .footer { padding: 16px 20px; }
+      .err-badge { display: none; }
+      .term-body { padding: 16px; font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Floating error badges -->
+  <span class="err-badge err-1">ERR_NOT_A_DEV</span>
+  <span class="err-badge err-2">warning: no tests found</span>
+  <span class="err-badge err-3">⚠ trust me bro</span>
+  <span class="err-badge err-4">node_modules: 847MB</span>
+  <span class="err-badge err-5">segfault (vibes)</span>
+
+  <div class="page">
+    <!-- Top bar -->
+    <div class="topbar">
+      <div class="topbar-left">Prod &nbsp;/&nbsp; Main</div>
+      <div class="topbar-right">
+        <span class="live-dot"></span>
+        LIVE — UNFORTUNATELY
+      </div>
+    </div>
+
+    <!-- Hero -->
+    <div class="hero">
+      <div class="title-wrap">
+        <h1 class="title">Hello World</h1>
+      </div>
+      <p class="sub">Watch me fail. <span>Non-dev deploys to prod on day one.</span></p>
+
+      <!-- Terminal -->
+      <div class="terminal">
+        <div class="term-bar">
+          <span class="term-dot"></span>
+          <span class="term-dot"></span>
+          <span class="term-dot"></span>
+          <span class="term-title">bash — 80×24</span>
+        </div>
+        <div class="term-body">
+          <span class="term-line"><span class="prompt">→</span> <span class="cmd">vercel --prod</span></span>
+          <span class="term-line"><span class="dim">▸ Deploying to production...</span></span>
+          <span class="term-line"><span class="warn">⚠ No framework detected.</span> <span class="dim">Good. Neither did I.</span></span>
+          <span class="term-line"><span class="warn">⚠ 0 tests passed.</span> <span class="dim">0 tests written. Perfectly balanced.</span></span>
+          <span class="term-line"><span class="err">✗ Error: "developer" not found in $PATH</span></span>
+          <span class="term-line"><span class="ok">✓ Deployed anyway. YOLO.</span></span>
+          <span class="term-line"><span class="prompt">→</span> <span class="cursor-block"></span></span>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-label">
+            <span>Confidence level</span>
+            <span>73% — stuck</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Joke -->
+      <div class="joke-area">
+        <p class="joke-text">
+          Shipping bugs I can't even read.<br>
+          <em>Live. In production. With confidence.</em>
+        </p>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <span>© 2026 — No devs were consulted</span>
+      <a href="https://vercel.com" target="_blank" rel="noopener">Somehow hosted on Vercel</a>
+    </div>
+  </div>
+</body>
+</html>
