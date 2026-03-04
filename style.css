@@ -20,14 +20,14 @@ html, body {
   touch-action: manipulation;
 }
 
-/* CRT Scanlines */
+/* CRT Scanlines — must be BELOW interactive overlays */
 body::after {
-  content: ''; position: fixed; inset: 0; z-index: 9999; pointer-events: none;
+  content: ''; position: fixed; inset: 0; z-index: 1; pointer-events: none;
   background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.07) 2px, rgba(0,0,0,0.07) 4px);
 }
 /* Film grain */
 body::before {
-  content: ''; position: fixed; inset: 0; z-index: 9998; pointer-events: none;
+  content: ''; position: fixed; inset: 0; z-index: 2; pointer-events: none;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
   background-size: 200px; opacity: 0.5;
 }
@@ -42,8 +42,14 @@ canvas { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; }
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
 }
-.overlay.active { opacity: 1; pointer-events: auto; }
+.overlay.active { opacity: 1; pointer-events: auto !important; }
 .hidden { display: none !important; }
+
+/* Ensure all buttons are always tappable */
+button, .cast-btn, .btn-again, .journal-btn, .journal-close {
+  position: relative; z-index: 5; cursor: pointer; pointer-events: auto;
+  -webkit-user-select: none; user-select: none;
+}
 
 /* ════════════════════════════════════
    INSTRUCTIONS POPUP
@@ -248,8 +254,9 @@ canvas { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; }
 /* ════════════════════════════════════
    BITE ALERT
    ════════════════════════════════════ */
-#bite-alert { background: rgba(255,42,109,0.08); }
+#bite-alert { background: rgba(255,42,109,0.08); cursor: pointer; }
 #bite-alert.active { animation: flashBorder 0.3s ease-out; }
+#bite-alert * { pointer-events: none; } /* Let clicks pass to parent */
 .bite-text {
   font-family: 'Orbitron', sans-serif;
   font-size: clamp(36px, 10vw, 72px); font-weight: 900;
@@ -266,7 +273,8 @@ canvas { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; }
 /* ════════════════════════════════════
    REEL SCREEN
    ════════════════════════════════════ */
-#reel-screen { background: rgba(10,10,18,0.85); backdrop-filter: blur(4px); }
+#reel-screen { background: rgba(10,10,18,0.85); backdrop-filter: blur(4px); cursor: pointer; }
+#reel-screen * { pointer-events: none; }
 .reel-label {
   font-family: 'Orbitron', sans-serif; font-size: clamp(14px, 3vw, 20px);
   font-weight: 700; letter-spacing: 0.15em; color: var(--yellow);
