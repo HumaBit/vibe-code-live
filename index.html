@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+<title>CATCH ME IF YOU CAN</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎣</text></svg>"/>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<canvas id="c"></canvas>
+
+<!-- ═══ INSTRUCTIONS POPUP ═══ -->
+<div id="instructions" class="overlay active">
+  <div class="instr-card">
+    <div class="instr-badge">NEW SIGNAL DETECTED</div>
+    <h1 class="instr-title">CATCH ME<br/><span>If You Can</span></h1>
+    <p class="instr-sub">Cyberpunk Fishing · Sector 7G · Neo-Pacific</p>
+
+    <div class="instr-steps">
+      <div class="instr-step">
+        <div class="step-icon">🎣</div>
+        <div class="step-body">
+          <div class="step-label">1 · CAST</div>
+          <div class="step-desc">Hit the button to drop your neon hook into the deep</div>
+        </div>
+      </div>
+      <div class="instr-step">
+        <div class="step-icon">👁️</div>
+        <div class="step-body">
+          <div class="step-label">2 · WAIT &amp; WATCH</div>
+          <div class="step-desc">Shadow fish circle your hook. Watch the sonar. Stay ready.</div>
+        </div>
+      </div>
+      <div class="instr-step">
+        <div class="step-icon">⚡</div>
+        <div class="step-body">
+          <div class="step-label">3 · HOOK IT</div>
+          <div class="step-desc">Screen flashes — tap FAST! You have 2 seconds before it escapes.</div>
+        </div>
+      </div>
+      <div class="instr-step">
+        <div class="step-icon">🎯</div>
+        <div class="step-body">
+          <div class="step-label">4 · REEL</div>
+          <div class="step-desc">Power meter swings. Tap in the <span class="g">GREEN</span> zone for rare catches.</div>
+        </div>
+      </div>
+      <div class="instr-step">
+        <div class="step-icon">🏆</div>
+        <div class="step-body">
+          <div class="step-label">5 · TROPHY</div>
+          <div class="step-desc">Build your streak. Chase the Void Leviathan. Beat your record.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="instr-fish-grid">
+      <div class="instr-fish" style="--fc:#00f0ff">Neon Guppy<span>Common</span></div>
+      <div class="instr-fish" style="--fc:#c0c8d8">Chrome Bass<span>Common</span></div>
+      <div class="instr-fish" style="--fc:#ff2a6d">Plasma Koi<span>Uncommon</span></div>
+      <div class="instr-fish" style="--fc:#f0e030">Quantum Tuna<span>Rare</span></div>
+      <div class="instr-fish" style="--fc:#05ffa1">Holo Marlin<span>Epic</span></div>
+      <div class="instr-fish" style="--fc:#b026ff">Void Leviathan<span>Legendary</span></div>
+    </div>
+
+    <button class="cast-btn glow-pulse" onclick="game.dismissInstructions()">DIVE IN</button>
+    <div class="instr-hint">Works on desktop &amp; mobile · Tap or click to play</div>
+  </div>
+</div>
+
+<!-- ═══ HUD ═══ -->
+<div id="hud">
+  <div class="hud-left">Sector <span>7G</span> · Neo-Pacific</div>
+  <div class="hud-center">CATCH ME IF YOU CAN</div>
+  <div class="hud-right">
+    <span id="hud-streak" class="hud-streak hidden">🔥 <span id="streak-val">0</span></span>
+    <span class="hud-sep">·</span>
+    Haul: <span id="hud-haul">0 kg</span>
+    <span class="hud-sep">·</span>
+    Casts: <span id="cast-count">0</span>
+  </div>
+</div>
+
+<!-- ═══ TROPHY CARD ═══ -->
+<div id="trophy" class="hidden">
+  <div class="trophy-label">🏆 Biggest Catch</div>
+  <div class="trophy-fish" id="trophy-name">—</div>
+  <div class="trophy-weight" id="trophy-weight">—</div>
+  <div class="trophy-rarity" id="trophy-rarity">—</div>
+</div>
+
+<!-- ═══ DEPTH METER ═══ -->
+<div id="depth">
+  <div class="depth-bar"><div class="depth-fill" id="depth-fill" style="height:0%"></div></div>
+  <div class="depth-label">Depth</div>
+</div>
+
+<!-- ═══ TITLE / CAST BUTTON ═══ -->
+<div id="ui">
+  <div id="title-screen" class="hidden">
+    <h1 class="title-h1"><span class="line1">CATCH ME</span><span class="line2">If You Can</span></h1>
+    <div class="tagline">Cyberpunk Fishing · 2026</div>
+    <button class="cast-btn" id="cast-btn" onclick="game.cast()">🎣 CAST</button>
+  </div>
+</div>
+
+<!-- ═══ STATUS TEXT ═══ -->
+<div id="status"></div>
+
+<!-- ═══ BITE ALERT ═══ -->
+<div id="bite-alert" class="overlay" onclick="game.hookIt()">
+  <div class="bite-text">HOOK IT!</div>
+  <div class="bite-sub">TAP ANYWHERE — NOW!</div>
+  <div class="bite-timer"><div class="bite-timer-fill" id="bite-timer-fill"></div></div>
+</div>
+
+<!-- ═══ REEL SCREEN ═══ -->
+<div id="reel-screen" class="overlay" onclick="game.lockMeter()">
+  <div class="reel-label">⚡ REEL IT IN</div>
+  <div class="meter-wrap" id="meter">
+    <div class="meter-zone zone-rl"></div>
+    <div class="meter-zone zone-yl"></div>
+    <div class="meter-zone zone-g"></div>
+    <div class="meter-zone zone-yr"></div>
+    <div class="meter-zone zone-rr"></div>
+    <div class="meter-needle" id="needle"></div>
+  </div>
+  <div class="meter-labels"><span>Miss</span><span>Good</span><span>Perfect</span><span>Good</span><span>Miss</span></div>
+  <div class="reel-hint">TAP TO LOCK</div>
+</div>
+
+<!-- ═══ RESULT SCREEN ═══ -->
+<div id="result-screen" class="overlay">
+  <div class="result-card" id="result-card"></div>
+</div>
+
+<!-- ═══ JOURNAL BUTTON ═══ -->
+<button id="journal-btn" class="journal-btn hidden" onclick="game.toggleJournal()">📖 <span id="journal-count">0</span></button>
+
+<!-- ═══ JOURNAL PANEL ═══ -->
+<div id="journal" class="journal hidden">
+  <div class="journal-header">
+    <h2>Catch Journal</h2>
+    <button class="journal-close" onclick="game.toggleJournal()">✕</button>
+  </div>
+  <div class="journal-stats" id="journal-stats"></div>
+  <div class="journal-list" id="journal-list"></div>
+</div>
+
+<script src="game.js"></script>
+</body>
+</html>
