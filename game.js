@@ -373,12 +373,22 @@ const game = {
 // ─── INPUT ───
 document.addEventListener('keydown', e => {
   if (e.code === 'Space' || e.code === 'Enter') {
+    e.preventDefault();
     if (game.state === 'INSTRUCTIONS') game.dismissInstructions();
     else if (game.state === 'TITLE') game.cast();
     else if (game.state === 'BITE') game.hookIt();
     else if (game.state === 'REELING') game.lockMeter();
   }
 });
+
+// Robust touch/click handling for overlays
+function addTap(id, fn) {
+  const el = $(id);
+  el.addEventListener('click', e => { e.preventDefault(); fn(); });
+  el.addEventListener('touchend', e => { e.preventDefault(); fn(); });
+}
+addTap('bite-alert', () => game.hookIt());
+addTap('reel-screen', () => game.lockMeter());
 
 /* ═══════════════════════════════════════════════════
    CANVAS RENDERER
